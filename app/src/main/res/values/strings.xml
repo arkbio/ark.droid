@@ -5,5 +5,8 @@
     <string name="welcomestring">Start Sensing!</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_hypha">Hypha</string>
+    <string name="title_activity_arkhypha">arkhypha</string>
+    <string name="title_activity_zephyr">zephyr</string>
 
 </resources>
