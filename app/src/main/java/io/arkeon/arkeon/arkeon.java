@@ -85,13 +85,13 @@ public class arkeon extends Activity {
     private SocketIO socket = null;
 
 
-    public void changeHypha(View view) {
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
-        EditText editText = (EditText) findViewById(R.id.edit_message);
-        String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
-    }
+//    public void changeHypha(View view) {
+//        Intent intent = new Intent(this, DisplayMessageActivity.class);
+//        EditText editText = (EditText) findViewById(R.id.edit_message);
+//        String message = editText.getText().toString();
+//        intent.putExtra(EXTRA_MESSAGE, message);
+//        startActivity(intent);
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,13 +103,14 @@ public class arkeon extends Activity {
         SocketIO socket = new SocketIO();
 
         //An array of Serial devices
-        serDevices = new SparseArray<>;
+        serDevices = new SparseArray<Object>();
 
         //Switch and Seek setup
         switchStatus = (TextView) findViewById(R.id.textView1);
         mixOnOffSwitch = (Switch) findViewById(R.id.mixOnOff);
         mixDirectionSwitch = (Switch) findViewById(R.id.mixDirection);
         mixSeek = (SeekBar) findViewById(R.id.mixSeek);
+        mixText = (TextView) findViewById(R.id.mixText);
 
         growSwitch = (Switch) findViewById(R.id.growOnOff);
         growSeek = (SeekBar) findViewById(R.id.growSeek);
@@ -121,7 +122,7 @@ public class arkeon extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
-                    socket_emission();
+//                    socket_emission();
                     switchStatus.setText("Connected");
                 } else {
                     switchStatus.setText("Disconnected");
@@ -134,23 +135,24 @@ public class arkeon extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
-                    socket_emission();
+//                    socket_emission();
                 } else {
-                    socket_emission();
+//                    socket_emission();
 
                 }
             }
         });
 
-        mixText.setText("Covered: " + mixSeek.getProgress() + "/" + mixSeek.getMax());
         mixSeek.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar mixSeek, int progress, boolean fromUser) {
+                mixText.setText("Covered: " + mixSeek.getProgress() + "/" + mixSeek.getMax());
 
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar mixSeek) {
+
 
             }
 
@@ -165,9 +167,9 @@ public class arkeon extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
-                    socket_emission();
+//                    socket_emission();
                 } else {
-                    socket_emission();
+//                    socket_emission();
 
                 }
             }
@@ -196,9 +198,9 @@ public class arkeon extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
-                    socket_emission();
+//                    socket_emission();
                 } else {
-                    socket_emission();
+//                    socket_emission();
 
                 }
             }
@@ -232,6 +234,9 @@ public class arkeon extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.arkeon, menu);
+        menu.add(0, 0, 0, "Arkeon");
+        menu.add(1, 0, 0, "Hypha");
+        menu.add(2, 0, 0, "Zephyr");
         //Add any device elements we've discovered to the overflow menu
 //        for (int i=0; i < serDevices.size(); i++) {
 ////            BluetoothDevice device = bleDevices.valueAt(i);
@@ -335,7 +340,7 @@ public class arkeon extends Activity {
     }
 
     private void socketDisconnect() {
-//        if (socket != null) return;
+        if (socket == null) return;
 //        if (socket.isConnected()) {
 //            socket.disconnect();
 //        }
@@ -354,7 +359,7 @@ public class arkeon extends Activity {
 
     private void socket_emission(String message) {
         if ( ( socket != null ) && socket.isConnected() ) {
-            socket.emit("Sensa", metric_quantity);
+//            socket.emit("Sensa", metric_quantity);
         }
     }
 
@@ -366,7 +371,8 @@ public class arkeon extends Activity {
 
     @Override
     protected void onStart() {
-        ensureSocketConnection(known_host_url);
+        super.onStart();
+//        ensureSocketConnection(known_host_url);
     }
 
     @Override

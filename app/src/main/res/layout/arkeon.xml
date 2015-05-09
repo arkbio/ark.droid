@@ -9,12 +9,6 @@
     tools:context=".arkeon"
     android:background="#C2E0FF">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hypha"
-        android:onClick="changeHypha" />
-
 
     <TextView
         android:layout_width="wrap_content"
@@ -58,6 +52,18 @@
         android:layout_marginRight="10dp"
         android:layout_marginTop="30dp"
         android:layout_below="@+id/mixDirection"
+        android:layout_centerHorizontal="true"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Speed"
+        android:id="@+id/mixText"
+        android:layout_marginTop="30dp"
+        android:layout_below="@+id/mixSeek"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         />
 
