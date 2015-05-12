@@ -21,14 +21,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".hypha"
-            android:label="@string/title_activity_hypha" >
-        </activity>
-        <activity
-            android:name=".zephyr"
-            android:label="@string/title_activity_zephyr" >
-        </activity>
     </application>
 
 </manifest>

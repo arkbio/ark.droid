@@ -14,6 +14,9 @@ import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+
+import android.widget.ViewFlipper;
+
 import android.widget.Switch;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -48,6 +51,9 @@ import io.socket.*;
 //public class arkeon extends Activity implements BluetoothAdapter.LeScanCallback {
 public class arkeon extends Activity {
 
+
+    public static arkeon appMainActivity;
+
 //    private static final String TAG = "BluetoothGattActivity";
 //    private static final String DEVICE_NAME = "Ark_BOARD";
 //    private static final UUID Ark_SERVICE = UUID.fromString("11223344-5566-7788-9900-AABBCCDDEEFF");
@@ -60,29 +66,15 @@ public class arkeon extends Activity {
 //    private BluetoothGatt mConnectedGatt;
 
     private static final String SOCK = "SocketIOActivity";
-    private static final String known_host_url = "http://192.168.1.17:8888";
+    private static final String known_host_url = "http://192.168.1.78:8088";
 
     private SparseArray serDevices;
 
-    private TextView mSensor1;
-    private TextView mSensor2;
-    private TextView mSensor3;
-
-    private ProgressDialog mProgress;
-
-    private TextView switchStatus;
-    private Switch mixOnOffSwitch;
-    private Switch mixDirectionSwitch;
-    private Switch growSwitch;
-    private Switch recircSwitch;
-
-    private SeekBar mixSeek;
-    private TextView mixText;
-
-    private SeekBar growSeek;
-    private TextView growText;
-
     private SocketIO socket = null;
+
+
+    private ViewFlipper viewFlipper;
+
 
 
 //    public void changeHypha(View view) {
@@ -100,116 +92,21 @@ public class arkeon extends Activity {
         setContentView(R.layout.arkeon);
         setProgressBarIndeterminate(true);
 
+
+
+        appMainActivity = this;
+
         SocketIO socket = new SocketIO();
 
         //An array of Serial devices
         serDevices = new SparseArray<Object>();
 
-        //Switch and Seek setup
-        switchStatus = (TextView) findViewById(R.id.textView1);
-        mixOnOffSwitch = (Switch) findViewById(R.id.mixOnOff);
-        mixDirectionSwitch = (Switch) findViewById(R.id.mixDirection);
-        mixSeek = (SeekBar) findViewById(R.id.mixSeek);
-        mixText = (TextView) findViewById(R.id.mixText);
-
-        growSwitch = (Switch) findViewById(R.id.growOnOff);
-        growSeek = (SeekBar) findViewById(R.id.growSeek);
-
-        recircSwitch = (Switch) findViewById(R.id.recircOnOff);
-
-        mixOnOffSwitch.setChecked(true);
-        mixOnOffSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-//                    socket_emission();
-                    switchStatus.setText("Connected");
-                } else {
-                    switchStatus.setText("Disconnected");
-                }
-            }
-        });
-
-        mixDirectionSwitch.setChecked(true);
-        mixDirectionSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-//                    socket_emission();
-                } else {
-//                    socket_emission();
-
-                }
-            }
-        });
-
-        mixSeek.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar mixSeek, int progress, boolean fromUser) {
-                mixText.setText("Covered: " + mixSeek.getProgress() + "/" + mixSeek.getMax());
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar mixSeek) {
-
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar mixSeek) {
-
-            }
-        });
-
-        growSwitch.setChecked(true);
-        growSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-//                    socket_emission();
-                } else {
-//                    socket_emission();
-
-                }
-            }
-        });
-
-        growSeek.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar growSeek, int progress, boolean fromUser) {
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar growSeek) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar growSeek) {
-
-            }
-        });
-
-
-        recircSwitch.setChecked(true);
-        recircSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-//                    socket_emission();
-                } else {
-//                    socket_emission();
-
-                }
-            }
-        });
-
 
         if ((socket != null) && socket.isConnected()) {
             Log.d(SOCK, "Connected too soon.");
         }
+
+        viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
 
         //Display Sensa in text fields
 //        mSensor1 = (TextView) findViewById(R.id.text_sensor1);
@@ -232,11 +129,12 @@ public class arkeon extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.arkeon, menu);
-        menu.add(0, 0, 0, "Arkeon");
-        menu.add(1, 0, 0, "Hypha");
-        menu.add(2, 0, 0, "Zephyr");
+        // Inflate the menu; this adds items to the action bar if it is present.//
+//        getMenuInflater().inflate(R.menu.arkeon, menu);
+//        menu.add(0, 0, 0, "Arkeon");
+//        menu.add(1, 0, 0, "Hypha");
+//        menu.add(2, 0, 0, "Zephyr");
         //Add any device elements we've discovered to the overflow menu
 //        for (int i=0; i < serDevices.size(); i++) {
 ////            BluetoothDevice device = bleDevices.valueAt(i);
@@ -247,17 +145,36 @@ public class arkeon extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
-            case R.id.action_scan:
+            case R.id.action_scan: {
                 serDevices.clear();
                 startSerialScan();
 //                bleDevices.clear();
 //                startBleScan();
                 return true;
+            }
+            case R.id.kefir: {
+                viewFlipper.setDisplayedChild(0);
+//                setContentView(R.layout.activity_kefir);
+                return true;
+            }
+            case R.id.hypha: {
+
+                viewFlipper.setDisplayedChild( 1 );
+//                setContentView(R.layout.activity_hypha);
+                return true;
+            }
+            case R.id.zephyr: {
+
+                viewFlipper.setDisplayedChild(2);
+//                setContentView(R.layout.activity_zephyr);
+                return true;
+            }
             default:
 
                 //Connect to Node Socket
-                ensureSocketConnection(known_host_url);
+                //ensureSocketConnection(known_host_url);
 
                 //Obtain the discovered ble device to connect with
 //                BluetoothDevice device = bleDevices.get(item.getItemId());
@@ -269,6 +186,9 @@ public class arkeon extends Activity {
 
                 return super.onOptionsItemSelected(item);
         }
+
+
+
     }
 
     private void startSerialScan(){
@@ -276,22 +196,23 @@ public class arkeon extends Activity {
     }
 
     private void clearDisplayValues() {
-        mSensor1.setText("---");
+        //mSensor1.setText("---");
 //        mSensor2.setText("---");
 //        mSensor3.setText("---");
     }
 
 
     private void ensureSocketConnection(String host_url) {
-        if (socket == null) {
-            socket = new SocketIO();
-        }
-        if (socket == null) return;
-        if (!socket.isConnected()) {
 
-            try {
+        try {
 
-                socket.connect(host_url, new IOCallback() {
+            if (socket == null) {
+                socket = new SocketIO(host_url);
+            }
+            if (socket == null) return;
+            if (!socket.isConnected()) {
+
+                socket.connect( new IOCallback() {
 
                     @Override
                     public void on(String event, IOAcknowledge ack, Object... args) {
@@ -317,13 +238,11 @@ public class arkeon extends Activity {
                     @Override
                     public void onDisconnect() {
                         Log.d(SOCK, "Disconnected");
-
                     }
 
                     @Override
                     public void onConnect() {
                         Log.d(SOCK, "Connected");
-
                     }
 
                     @Override
@@ -333,18 +252,19 @@ public class arkeon extends Activity {
 
                 });
 
-            } catch (MalformedURLException mure) {
-                Log.d(SOCK, "MalformedURLException.");
             }
+
+        } catch (MalformedURLException mure) {
+            Log.d(SOCK, "MalformedURLException.");
         }
     }
 
     private void socketDisconnect() {
         if (socket == null) return;
-//        if (socket.isConnected()) {
-//            socket.disconnect();
-//        }
-        socket.disconnect();
+        if (socket.isConnected()) {
+            socket.disconnect();
+        }
+        socket = null;
     }
 
     private double testSensa = 0.0;
@@ -357,13 +277,13 @@ public class arkeon extends Activity {
 //        }
 //    }
 
-    private void socket_emission(String message) {
+    public void socket_emission(String message) {
         if ( ( socket != null ) && socket.isConnected() ) {
-//            socket.emit("Sensa", metric_quantity);
+            socket.emit("command", message);
         }
     }
 
-    private void socket_emission_collection(JSONObject metric_quantity_map) {
+    public void socket_emission_collection(JSONObject metric_quantity_map) {
         if ((socket != null) && socket.isConnected()) {
             socket.send(metric_quantity_map);
         }
@@ -372,7 +292,7 @@ public class arkeon extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-//        ensureSocketConnection(known_host_url);
+        ensureSocketConnection(known_host_url);
     }
 
     @Override
