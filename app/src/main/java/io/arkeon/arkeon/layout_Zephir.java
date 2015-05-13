@@ -7,12 +7,17 @@ import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by richardalbertleddy on 5/10/15.
  */
 
 
 public class layout_Zephir extends RelativeLayout {
+
+    public static layout_Zephir zephirOperations;
 
     private Context mContext;
     private LayoutInflater layoutInflater;
@@ -21,6 +26,7 @@ public class layout_Zephir extends RelativeLayout {
     private Switch _sw_airOnOff;
     private Switch _sw_recircOnOff;
 
+    private String  _deviceId = "zephyr";
 
     public layout_Zephir (Context context) {
         super(context);
@@ -50,6 +56,7 @@ public class layout_Zephir extends RelativeLayout {
 
 
     private void inflate() {
+        zephirOperations = this;
         layoutInflater = (LayoutInflater) mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         layoutInflater.inflate(R.layout.activity_zephyr, this, true);
@@ -66,11 +73,7 @@ public class layout_Zephir extends RelativeLayout {
         _sw_heatOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'zephyr', 'module' : 'heatOnOff', 'state' : 'true' }");
-                } else {
-                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'zephyr', 'module' : 'heatOnOff', 'state' : 'false' }");
-                }
+                arkeon.appMainActivity.transmit_switch(_deviceId, "Heat", isChecked);
             }
         });
 
@@ -79,11 +82,7 @@ public class layout_Zephir extends RelativeLayout {
         _sw_airOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'zephyr', 'module' : 'airOnOff', 'state' : 'true' }");
-                } else {
-                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'zephyr', 'module' : 'airOnOff', 'state' : 'false' }");
-                }
+                arkeon.appMainActivity.transmit_switch(_deviceId, "Air", isChecked);
             }
         });
 
@@ -91,14 +90,21 @@ public class layout_Zephir extends RelativeLayout {
         _sw_recircOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'zephyr', 'module' : 'recircOnOff', 'state' : 'true' }");
-                } else {
-                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'zephyr', 'module' : 'recircOnOff', 'state' : 'false' }");
-                }
+                arkeon.appMainActivity.transmit_switch(_deviceId, "RecircPump", isChecked);
             }
         });
 
+    }
+
+
+    public void setOperationValues(JSONObject deviceState) {
+
+        try {
+            _sw_heatOnOff.setChecked(deviceState.getBoolean("Heat"));
+            _sw_airOnOff.setChecked(deviceState.getBoolean("Air"));
+            _sw_recircOnOff.setChecked(deviceState.getBoolean("Recirc"));
+        } catch ( JSONException jexp ) {
+        }
     }
 
 

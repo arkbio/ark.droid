@@ -13,6 +13,9 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by richardalbertleddy on 5/10/15.
  */
@@ -20,18 +23,24 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class layout_Kefir extends RelativeLayout {
 
+    public static layout_Kefir kefirOperations;
+
     private Context mContext;
     private LayoutInflater layoutInflater;
 
 
 
-    private Switch _sw_mixOnOff;
-    private Switch _sw_mixDirection;
+    private Switch  _sw_mixOnOff;
+    private Switch  _sw_mixDirection;
     private SeekBar _sk_mixSeek;
-    private Switch _sw_growOnOff;
+    private Switch  _sw_growOnOff;
     private SeekBar _sk_growSeek;
-    private Switch _sw_recircOnOff;
+    private Switch  _sw_recircOnOff;
 
+
+    private int     _growLightLevel;
+
+    private String  _deviceId = "kefir";
 
 
 
@@ -63,13 +72,17 @@ public class layout_Kefir extends RelativeLayout {
 
 
     private void inflate() {
+        kefirOperations = this;
         layoutInflater = (LayoutInflater) mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         layoutInflater.inflate(R.layout.activity_kefir, this, true);
     }
 
+
     private void bindViews() {
         // bind all views here
+
+        _growLightLevel = 50;
 
         _sw_mixOnOff = (Switch)findViewById(R.id.mixOnOff);
         _sw_mixDirection = (Switch)findViewById(R.id.mixDirection);
@@ -82,11 +95,7 @@ public class layout_Kefir extends RelativeLayout {
         _sw_mixOnOff.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'kefir', 'module' : 'RecircValve', 'state' : 'true' }");
-                } else {
-                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'kefir', 'module' : 'RecircValve', 'state' : 'false' }");
-                }
+                arkeon.appMainActivity.transmit_switch(_deviceId, "RecircValve", isChecked);
             }
         });
 
@@ -94,11 +103,7 @@ public class layout_Kefir extends RelativeLayout {
         _sw_mixDirection.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'kefir', 'module' : 'mixDirection', 'state' : 'true' }");
-                } else {
-                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'kefir', 'module' : 'mixDirection', 'state' : 'false' }");
-                }
+                arkeon.appMainActivity.transmit_switch(_deviceId, "mixDirection", isChecked);
             }
         });
 
@@ -106,7 +111,15 @@ public class layout_Kefir extends RelativeLayout {
             @Override
             public void onProgressChanged(SeekBar mixSeek, int progress, boolean fromUser) {
                 String progstr = (new Integer(progress)).toString();
-                arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'kefir', 'module' : 'mixSpeed', 'value' : '" + progstr + "' }");
+                JSONObject jobj = new JSONObject();
+                try {
+                    jobj.put("deviceID", _deviceId);
+                    jobj.put("module", "mixSpeed");
+                    jobj.put("state", true);
+                    jobj.put("value", progstr);
+                    arkeon.appMainActivity.socket_emission(jobj);
+                } catch (JSONException jexp) {
+                }
             }
 
             @Override
@@ -122,10 +135,16 @@ public class layout_Kefir extends RelativeLayout {
         _sw_growOnOff.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'kefir', 'module' : 'growOnOff', 'state' : 'true' }");
-                } else {
-                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'kefir', 'module' : 'growOnOff', 'state' : 'false' }");
+                String progstr = (new Integer(_growLightLevel)).toString();
+                JSONObject jobj = new JSONObject();
+                try {
+                    jobj.put("deviceID", _deviceId);
+                    jobj.put("module", "growLight");
+                    jobj.put("value", progstr);
+                    jobj.put("state", isChecked);
+                    arkeon.appMainActivity.socket_emission(jobj);
+                } catch (JSONException jexp) {
+
                 }
             }
         });
@@ -134,7 +153,17 @@ public class layout_Kefir extends RelativeLayout {
             @Override
             public void onProgressChanged(SeekBar growSeek, int progress, boolean fromUser) {
                 String progstr = (new Integer(progress)).toString();
-                arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'kefir', 'module' : 'growSeek', 'value' : '" + progstr + "' }");
+                _growLightLevel = progress;
+                JSONObject jobj = new JSONObject();
+                try {
+                    jobj.put("deviceID", _deviceId);
+                    jobj.put("module", "growLight");
+                    jobj.put("state", true);
+                    jobj.put("value", progstr);
+                    arkeon.appMainActivity.socket_emission(jobj);
+                } catch (JSONException jexp) {
+
+                }
             }
 
             @Override
@@ -153,15 +182,54 @@ public class layout_Kefir extends RelativeLayout {
         _sw_recircOnOff.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'kefir', 'module' : 'recircOnOff', 'state' : 'true' }");
-                } else {
-                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'kefir', 'module' : 'recircOnOff', 'state' : 'false' }");
-                }
+                arkeon.appMainActivity.transmit_switch(_deviceId, "RecircPump", isChecked);
             }
         });
 
     }
 
 
+    public void setOperationValues(JSONObject deviceState) {
+
+        try {
+
+            _sw_mixOnOff.setChecked(deviceState.getBoolean("RecircValve"));
+            _sw_mixDirection.setChecked(deviceState.getBoolean("mixDirection"));
+            _sw_growOnOff.setChecked( (deviceState.getInt("growLight") == 0) ? false : true );
+            _sw_recircOnOff.setChecked(deviceState.getBoolean("RecircPump"));
+
+            _sk_growSeek.setProgress(deviceState.getInt("growLight"));
+            _sk_mixSeek.setProgress(deviceState.getInt("mix"));
+
+        } catch ( JSONException jexp ) {
+        }
+    }
+
 }
+
+
+/*
+
+
+{
+  "Kefir": {
+    "RecircPump": false,
+    "DispenseValue": false,
+    "RecircValve": false,
+    "DrainValve": false,
+    "growRelay": false,
+    "growLight": 0,
+    "AirPump": false,
+    "Heater": false,
+    "mixSpeed": 0,
+    "mixDirection": false,
+    "ledRed": 0,
+    "ledGreen": 0,
+    "ledBlue": 0,
+    "LoadPump": false,
+    "DosePump": false
+  },
+  "Hypha": {},
+  "Zephyr": {}
+}
+*/

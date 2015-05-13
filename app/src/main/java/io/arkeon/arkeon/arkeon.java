@@ -66,7 +66,7 @@ public class arkeon extends Activity {
 //    private BluetoothGatt mConnectedGatt;
 
     private static final String SOCK = "SocketIOActivity";
-    private static final String known_host_url = "http://192.168.1.78:8088";
+    private static final String known_host_url = "http://192.168.1.85:8088";
 
     private SparseArray serDevices;
 
@@ -218,6 +218,28 @@ public class arkeon extends Activity {
                     public void on(String event, IOAcknowledge ack, Object... args) {
                         if ("echo back".equals(event) && args.length > 0) {
                             Log.d("SocketIO", "" + args[0]);
+
+                            JSONObject json = (JSONObject)(args[0]);
+                            if ( event == "status_report" && ( json != null ) ) {
+                                try {
+
+                                    if ( json.has("hypha") && ( layout_Hypha.hyphaOperations != null ) ) {
+                                        JSONObject jHypha = json.getJSONObject("hypha");
+                                        layout_Hypha.hyphaOperations.setOperationValues(jHypha);
+                                    }
+                                    if ( json.has("kefir") && ( layout_Kefir.kefirOperations != null ) ) {
+                                        JSONObject jHypha = json.getJSONObject("hypha");
+                                        layout_Kefir.kefirOperations.setOperationValues(jHypha);
+                                    }
+                                    if ( json.has("zephyr") && ( layout_Zephir.zephirOperations != null ) ) {
+                                        JSONObject jHypha = json.getJSONObject("hypha");
+                                        layout_Zephir.zephirOperations.setOperationValues(jHypha);
+                                    }
+
+                                } catch ( JSONException jexp ) {
+                                }
+                            }
+
                         }
                     }
 
@@ -279,9 +301,33 @@ public class arkeon extends Activity {
 
     public void socket_emission(String message) {
         if ( ( socket != null ) && socket.isConnected() ) {
-            socket.emit("command", message);
+            try {
+                JSONObject jobj = new JSONObject(message);
+                socket.emit("command", jobj);
+            } catch ( JSONException jexp ) {
+                System.console().printf("json error");
+            }
         }
     }
+
+    public void socket_emission(JSONObject jobj) {
+        if ( ( socket != null ) && socket.isConnected() ) {
+            socket.emit("command", jobj);
+        }
+    }
+
+
+    public void transmit_switch(String deviceId, String moduleName, boolean state) {
+        JSONObject jobj = new JSONObject();
+        try {
+            jobj.put("deviceID", deviceId);
+            jobj.put("module", moduleName);
+            jobj.put("state", state);
+            this.socket_emission(jobj);
+        } catch (JSONException jexp) {
+        }
+    }
+
 
     public void socket_emission_collection(JSONObject metric_quantity_map) {
         if ((socket != null) && socket.isConnected()) {
