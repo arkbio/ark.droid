@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 
@@ -17,8 +18,6 @@ import org.json.JSONObject;
 
 public class layout_Zephir extends RelativeLayout {
 
-    public static layout_Zephir zephirOperations;
-
     private Context mContext;
     private LayoutInflater layoutInflater;
 
@@ -26,7 +25,6 @@ public class layout_Zephir extends RelativeLayout {
     private Switch _sw_airOnOff;
     private Switch _sw_recircOnOff;
 
-    private String  _deviceId = "zephyr";
 
     public layout_Zephir (Context context) {
         super(context);
@@ -56,7 +54,6 @@ public class layout_Zephir extends RelativeLayout {
 
 
     private void inflate() {
-        zephirOperations = this;
         layoutInflater = (LayoutInflater) mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         layoutInflater.inflate(R.layout.activity_zephyr, this, true);
@@ -66,14 +63,18 @@ public class layout_Zephir extends RelativeLayout {
         // bind all views here
         _sw_heatOnOff = (Switch)findViewById(R.id.heatOnOff);
         _sw_airOnOff = (Switch)findViewById(R.id.airOnOff);
-        _sw_recircOnOff = (Switch)findViewById(R.id.recircOnOff);
+        _sw_recircOnOff = (Switch)findViewById(R.id.switchRecirc);
 
 
         _sw_heatOnOff.setChecked(true);
         _sw_heatOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                arkeon.appMainActivity.transmit_switch(_deviceId, "Heat", isChecked);
+                if (isChecked) {
+                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'zephyr', 'module' : 'heatOnOff', 'state' : 'true' }");
+                } else {
+                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'zephyr', 'module' : 'heatOnOff', 'state' : 'false' }");
+                }
             }
         });
 
@@ -82,7 +83,11 @@ public class layout_Zephir extends RelativeLayout {
         _sw_airOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                arkeon.appMainActivity.transmit_switch(_deviceId, "Air", isChecked);
+                if (isChecked) {
+                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'zephyr', 'module' : 'airOnOff', 'state' : 'true' }");
+                } else {
+                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'zephyr', 'module' : 'airOnOff', 'state' : 'false' }");
+                }
             }
         });
 
@@ -90,22 +95,36 @@ public class layout_Zephir extends RelativeLayout {
         _sw_recircOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                arkeon.appMainActivity.transmit_switch(_deviceId, "RecircPump", isChecked);
+                if (isChecked) {
+                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'zephyr', 'module' : 'recircOnOff', 'state' : 'true' }");
+                } else {
+                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'zephyr', 'module' : 'recircOnOff', 'state' : 'false' }");
+                }
             }
         });
 
     }
 
+    public void handleSocketEvent(String event, JSONObject payload) throws JSONException {
 
-    public void setOperationValues(JSONObject deviceState) {
+        if(event == "sensor_report") {
+            JSONObject measurement = (JSONObject)payload.get("measurement");
+            String label = measurement.getString("label");
+            EditText editText;
 
-        try {
-            _sw_heatOnOff.setChecked(deviceState.getBoolean("Heat"));
-            _sw_airOnOff.setChecked(deviceState.getBoolean("Air"));
-            _sw_recircOnOff.setChecked(deviceState.getBoolean("Recirc"));
-        } catch ( JSONException jexp ) {
+            if(label == "temp") editText = (EditText)findViewById(R.id.temp);
+            else if(label == "pH") editText = (EditText)findViewById(R.id.pH);
+            else if(label == "DO") editText = (EditText)findViewById(R.id.DO);
+            else if(label == "optical") editText = (EditText)findViewById(R.id.optical);
+            else if(label == "flow") editText = (EditText)findViewById(R.id.flow);
+            else {
+                System.out.println("sensor label not founnd: " + label); // error
+                return;
+            }
+
+            String value = measurement.getString("datum");
+            editText.setText(value);
         }
     }
-
 
 }

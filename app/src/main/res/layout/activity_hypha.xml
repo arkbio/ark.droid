@@ -19,7 +19,7 @@
     <Switch
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/mixOnOff"
+        android:id="@+id/switchMix"
         android:checked="false"
         android:layout_below="@+id/textView1"
         android:layout_centerHorizontal="true"
@@ -32,13 +32,13 @@
         android:layout_height="wrap_content"
         android:id="@+id/mixDirection"
         android:checked="false"
-        android:layout_below="@+id/mixOnOff"
-        android:layout_alignStart="@+id/mixOnOff"
+        android:layout_below="@+id/switchMix"
+        android:layout_alignStart="@+id/switchMix"
         android:layout_marginTop="10dp"
         />
 
     <SeekBar
-        android:id="@+id/mixSeek"
+        android:id="@+id/seekMix"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:progress="20"
@@ -56,7 +56,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="GROW"
         android:id="@+id/textView2"
-        android:layout_below="@+id/mixSeek"
+        android:layout_below="@+id/seekMix"
         android:layout_alignStart="@+id/textView1"
         android:layout_marginTop="100dp"        />
 
@@ -70,7 +70,7 @@
         android:layout_alignStart="@+id/mixDirection" />
 
     <SeekBar
-        android:id="@+id/growSeek"
+        android:id="@+id/seekGrow"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:progress="20"
@@ -88,14 +88,14 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="RECIRCULATE"
         android:id="@+id/textView3"
-        android:layout_below="@+id/growSeek"
+        android:layout_below="@+id/seekGrow"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="126dp" />
 
     <Switch
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/recircOnOff"
+        android:id="@+id/switchRecirc"
         android:checked="false"
         android:layout_marginTop="50dp"
         android:layout_below="@+id/textView3"

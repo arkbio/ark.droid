@@ -23,6 +23,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.UUID;
@@ -66,7 +67,7 @@ public class arkeon extends Activity {
 //    private BluetoothGatt mConnectedGatt;
 
     private static final String SOCK = "SocketIOActivity";
-    private static final String known_host_url = "http://192.168.1.85:8088";
+    private static final String known_host_url = "http://192.168.1.237:8088";
 
     private SparseArray serDevices;
 
@@ -218,28 +219,25 @@ public class arkeon extends Activity {
                     public void on(String event, IOAcknowledge ack, Object... args) {
                         if ("echo back".equals(event) && args.length > 0) {
                             Log.d("SocketIO", "" + args[0]);
+                        }
 
-                            JSONObject json = (JSONObject)(args[0]);
-                            if ( event == "status_report" && ( json != null ) ) {
-                                try {
-
-                                    if ( json.has("hypha") && ( layout_Hypha.hyphaOperations != null ) ) {
-                                        JSONObject jHypha = json.getJSONObject("hypha");
-                                        layout_Hypha.hyphaOperations.setOperationValues(jHypha);
-                                    }
-                                    if ( json.has("kefir") && ( layout_Kefir.kefirOperations != null ) ) {
-                                        JSONObject jHypha = json.getJSONObject("hypha");
-                                        layout_Kefir.kefirOperations.setOperationValues(jHypha);
-                                    }
-                                    if ( json.has("zephyr") && ( layout_Zephir.zephirOperations != null ) ) {
-                                        JSONObject jHypha = json.getJSONObject("hypha");
-                                        layout_Zephir.zephirOperations.setOperationValues(jHypha);
-                                    }
-
-                                } catch ( JSONException jexp ) {
-                                }
+                        JSONObject jobj = (JSONObject)args[0];
+                        try {
+                            if(jobj.getString("deviceID") == "Kefir") {
+                                layout_Kefir v = (layout_Kefir) viewFlipper.getChildAt(0);
+                                if (v != null) v.handleSocketEvent(event, jobj);
+                            }
+                            else if(jobj.getString("deviceID") == "Hypha") {
+                                layout_Hypha v = (layout_Hypha) viewFlipper.getChildAt(1);
+                                if (v != null) v.handleSocketEvent(event, jobj);
+                            }
+                            else if(jobj.getString("deviceID") == "Zephyr") {
+                                layout_Zephir v = (layout_Zephir) viewFlipper.getChildAt(2);
+                                if (v != null) v.handleSocketEvent(event, jobj);
                             }
 
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
                     }
 
@@ -315,20 +313,6 @@ public class arkeon extends Activity {
             socket.emit("command", jobj);
         }
     }
-
-
-    public void transmit_switch(String deviceId, String moduleName, boolean state) {
-        JSONObject jobj = new JSONObject();
-        try {
-            jobj.put("deviceID", deviceId);
-            jobj.put("module", moduleName);
-            jobj.put("state", state);
-            this.socket_emission(jobj);
-        } catch (JSONException jexp) {
-        }
-    }
-
-
     public void socket_emission_collection(JSONObject metric_quantity_map) {
         if ((socket != null) && socket.isConnected()) {
             socket.send(metric_quantity_map);

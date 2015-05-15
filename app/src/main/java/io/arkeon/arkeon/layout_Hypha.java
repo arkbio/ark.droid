@@ -1,7 +1,7 @@
 package io.arkeon.arkeon;
 
-import android.app.Activity;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 
 import android.view.LayoutInflater;
@@ -19,28 +19,19 @@ import org.json.JSONObject;
 
 public class layout_Hypha extends RelativeLayout {
 
-
-    public static layout_Hypha hyphaOperations;
-
-
     private Context mContext;
     private LayoutInflater layoutInflater;
 
 
     protected arkeon mainActivity;
 
-    private String  _deviceId = "hypha";
-    private int     _growLightLevel;
 
-
-    private Switch  _sw_mixOnOff;
-    private Switch  _sw_mixDirection;
+    private Switch _sw_mixOnOff;
+    private Switch _sw_mixDirection;
     private SeekBar _sk_mixSeek;
-    private Switch  _sw_growOnOff;
+    private Switch _sw_growOnOff;
     private SeekBar _sk_growSeek;
-    private Switch  _sw_recircOnOff;
-
-
+    private Switch _sw_recircOnOff;
 
     public layout_Hypha (Context context) {
         super(context);
@@ -70,7 +61,6 @@ public class layout_Hypha extends RelativeLayout {
 
 
     private void inflate() {
-        hyphaOperations = this;
         layoutInflater = (LayoutInflater) mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         layoutInflater.inflate(R.layout.activity_hypha, this, true);
@@ -80,18 +70,22 @@ public class layout_Hypha extends RelativeLayout {
 
         // bind all views here
 
-        _sw_mixOnOff = (Switch)findViewById(R.id.mixOnOff);
+        _sw_mixOnOff = (Switch)findViewById(R.id.switchMix);
         _sw_mixDirection = (Switch)findViewById(R.id.mixDirection);
-        _sk_mixSeek  = (SeekBar)findViewById(R.id.mixSeek);
+        _sk_mixSeek  = (SeekBar)findViewById(R.id.seekMix);
         _sw_growOnOff = (Switch)findViewById(R.id.growOnOff);
-        _sk_growSeek = (SeekBar)findViewById(R.id.growSeek);
-        _sw_recircOnOff = (Switch)findViewById(R.id.recircOnOff);
+        _sk_growSeek = (SeekBar)findViewById(R.id.seekGrow);
+        _sw_recircOnOff = (Switch)findViewById(R.id.switchRecirc);
 
         _sw_mixOnOff.setChecked(true);
         _sw_mixOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                arkeon.appMainActivity.transmit_switch(_deviceId, "DosePump", isChecked);
+                if (isChecked) {
+                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'hypha', 'module' : 'DosePump', 'state' : 'true' }");
+                } else {
+                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'hypha', 'module' : 'DosePump', 'state' : 'false' }");
+                }
             }
         });
 
@@ -99,7 +93,11 @@ public class layout_Hypha extends RelativeLayout {
         _sw_mixDirection.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                arkeon.appMainActivity.transmit_switch(_deviceId, "mixDirection", isChecked);
+                if (isChecked) {
+                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'hypha', 'module' : 'mixDirection', 'state' : 'true' }");
+                } else {
+                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'hypha', 'module' : 'mixDirection', 'state' : 'false' }");
+                }
             }
         });
 
@@ -107,15 +105,7 @@ public class layout_Hypha extends RelativeLayout {
             @Override
             public void onProgressChanged(SeekBar mixSeek, int progress, boolean fromUser) {
                 String progstr = (new Integer(progress)).toString();
-                JSONObject jobj = new JSONObject();
-                try {
-                    jobj.put("deviceID", _deviceId);
-                    jobj.put("module", "mixSpeed");
-                    jobj.put("state", true);
-                    jobj.put("value", progstr);
-                    arkeon.appMainActivity.socket_emission(jobj);
-                } catch (JSONException jexp) {
-                }
+                arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'hypha', 'module' : 'mixSeek', 'value' : '" + progstr + "' }");
             }
 
             @Override
@@ -131,13 +121,10 @@ public class layout_Hypha extends RelativeLayout {
         _sw_growOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                JSONObject jobj = new JSONObject();
-                try {
-                    jobj.put("deviceID", _deviceId);
-                    jobj.put("module", "growLight");
-                    jobj.put("state", isChecked);
-                    arkeon.appMainActivity.socket_emission(jobj);
-                } catch (JSONException jexp) {
+                if (isChecked) {
+                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'hypha', 'module' : 'growOnOff', 'state' : 'true' }");
+                } else {
+                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'hypha', 'module' : 'growOnOff', 'state' : 'false' }");
                 }
             }
         });
@@ -146,17 +133,7 @@ public class layout_Hypha extends RelativeLayout {
             @Override
             public void onProgressChanged(SeekBar growSeek, int progress, boolean fromUser) {
                 String progstr = (new Integer(progress)).toString();
-                _growLightLevel = progress;
-                JSONObject jobj = new JSONObject();
-                try {
-                    jobj.put("deviceID", _deviceId);
-                    jobj.put("module", "growLight");
-                    jobj.put("state", true);
-                    jobj.put("value", progstr);
-                    arkeon.appMainActivity.socket_emission(jobj);
-                } catch (JSONException jexp) {
-
-                }
+                arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'hypha', 'module' : 'growSeek', 'value' : '" + progstr + "' }");
             }
 
             @Override
@@ -173,30 +150,36 @@ public class layout_Hypha extends RelativeLayout {
         _sw_recircOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                arkeon.appMainActivity.transmit_switch(_deviceId, "RecircPump", isChecked);
+                if (isChecked) {
+                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'hypha', 'module' : 'RecircPump', 'state' : 'true' }");
+                } else {
+                    arkeon.appMainActivity.socket_emission("{ 'deviceID' : 'hypha', 'module' : 'RecircPump', 'state' : 'false' }");
+                }
             }
         });
 
     }
 
+    public void handleSocketEvent(String event, JSONObject payload) throws JSONException {
 
+        if(event == "sensor_report") {
+            JSONObject measurement = (JSONObject)payload.get("measurement");
+            String label = measurement.getString("label");
+            EditText editText;
 
-    public void setOperationValues(JSONObject deviceState) {
+            if(label == "temp") editText = (EditText)findViewById(R.id.temp);
+            else if(label == "pH") editText = (EditText)findViewById(R.id.pH);
+            else if(label == "DO") editText = (EditText)findViewById(R.id.DO);
+            else if(label == "optical") editText = (EditText)findViewById(R.id.optical);
+            else if(label == "flow") editText = (EditText)findViewById(R.id.flow);
+            else {
+                System.out.println("sensor label not founnd: " + label); // error
+                return;
+            }
 
-        try {
-
-            _sw_mixOnOff.setChecked(deviceState.getBoolean("RecircValve"));
-            _sw_mixDirection.setChecked(deviceState.getBoolean("mixDirection"));
-            _sw_growOnOff.setChecked( (deviceState.getInt("growLight") == 0) ? false : true );
-            _sw_recircOnOff.setChecked(deviceState.getBoolean("RecircPump"));
-
-            _sk_growSeek.setProgress(deviceState.getInt("growLight"));
-            _sk_mixSeek.setProgress(deviceState.getInt("mix"));
-
-        } catch ( JSONException jexp ) {
+            String value = measurement.getString("datum");
+            editText.setText(value);
         }
     }
-
-
 
 }
