@@ -218,26 +218,25 @@ public class arkeon extends Activity {
                     public void on(String event, IOAcknowledge ack, Object... args) {
                         if ("echo back".equals(event) && args.length > 0) {
                             Log.d("SocketIO", "" + args[0]);
+                        } else if ("status_report".equals(event) && args.length > 0) {
 
                             JSONObject json = (JSONObject)(args[0]);
-                            if ( event == "status_report" && ( json != null ) ) {
-                                try {
+                            try {
 
-                                    if ( json.has("hypha") && ( layout_Hypha.hyphaOperations != null ) ) {
-                                        JSONObject jHypha = json.getJSONObject("hypha");
-                                        layout_Hypha.hyphaOperations.setOperationValues(jHypha);
-                                    }
-                                    if ( json.has("kefir") && ( layout_Kefir.kefirOperations != null ) ) {
-                                        JSONObject jHypha = json.getJSONObject("hypha");
-                                        layout_Kefir.kefirOperations.setOperationValues(jHypha);
-                                    }
-                                    if ( json.has("zephyr") && ( layout_Zephir.zephirOperations != null ) ) {
-                                        JSONObject jHypha = json.getJSONObject("hypha");
-                                        layout_Zephir.zephirOperations.setOperationValues(jHypha);
-                                    }
-
-                                } catch ( JSONException jexp ) {
+                                if ( json.has("hypha") && ( layout_Hypha.hyphaOperations != null ) ) {
+                                    JSONObject jHypha = json.getJSONObject("hypha");
+                                    layout_Hypha.hyphaOperations.setOperationValues(jHypha);
                                 }
+                                if ( json.has("kefir") && ( layout_Kefir.kefirOperations != null ) ) {
+                                    JSONObject jHypha = json.getJSONObject("hypha");
+                                    layout_Kefir.kefirOperations.setOperationValues(jHypha);
+                                }
+                                if ( json.has("zephyr") && ( layout_Zephir.zephirOperations != null ) ) {
+                                    JSONObject jHypha = json.getJSONObject("hypha");
+                                    layout_Zephir.zephirOperations.setOperationValues(jHypha);
+                                }
+
+                            } catch ( JSONException jexp ) {
                             }
 
                         }
