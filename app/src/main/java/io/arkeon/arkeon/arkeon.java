@@ -221,17 +221,20 @@ public class arkeon extends Activity {
                             Log.d("SocketIO", "" + args[0]);
                         }
 
+                        // ignore this special case
+                        if(event.equals("sensor_reading")) return;
+
                         JSONObject jobj = (JSONObject)args[0];
                         try {
-                            if(jobj.getString("deviceID") == "Kefir") {
+                            if(jobj.getString("deviceID").equals("Kefir")) {
                                 layout_Kefir v = (layout_Kefir) viewFlipper.getChildAt(0);
                                 if (v != null) v.handleSocketEvent(event, jobj);
                             }
-                            else if(jobj.getString("deviceID") == "Hypha") {
+                            else if(jobj.getString("deviceID").equals("Hypha")) {
                                 layout_Hypha v = (layout_Hypha) viewFlipper.getChildAt(1);
                                 if (v != null) v.handleSocketEvent(event, jobj);
                             }
-                            else if(jobj.getString("deviceID") == "Zephyr") {
+                            else if(jobj.getString("deviceID").equals("Zephyr")) {
                                 layout_Zephir v = (layout_Zephir) viewFlipper.getChildAt(2);
                                 if (v != null) v.handleSocketEvent(event, jobj);
                             }
